@@ -103,5 +103,46 @@ class CalculatorTest {
         assertEquals(expected, actual);
 
     }
+
+    @Test
+    @DisplayName("soll beim ersten Drücken der C-Taste nur den Bildschirm löschen und beim zweiten alles zurücksetzen")
+    void testClearKeyBehavior(){
+        Calculator calc = new Calculator();
+
+        calc.pressDigitKey(2);
+        calc.pressBinaryOperationKey("+");
+        calc.pressDigitKey(5);
+
+        calc.pressClearKey();
+        String afterFirstClear = calc.readScreen();
+
+        calc.pressDigitKey(1);
+        calc.pressEqualsKey();
+
+        String expectedAfterFirstClear = "0";
+        String expectedFinal = "3";
+        String actualFinal = calc.readScreen();
+
+        assertEquals(expectedAfterFirstClear, afterFirstClear);
+        assertEquals(expectedFinal, actualFinal);
+
+    }
+
+    @Test
+    @DisplayName("soll beim erneuten Drücken der Gleich-Taste die letzte Operation wiederholen")
+    void testRepeatedEquals(){
+        Calculator calc = new Calculator();
+
+        calc.pressDigitKey(4);
+        calc.pressBinaryOperationKey("+");
+        calc.pressDigitKey(8);
+        calc.pressEqualsKey();
+        calc.pressEqualsKey();
+
+        String expected = "20";
+        String actual = calc.readScreen();
+
+        assertEquals(expected, actual);
+    }
 }
 
