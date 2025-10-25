@@ -14,6 +14,10 @@ public class Calculator {
 
     private String latestOperation = "";
 
+    private boolean wasClearedOnce = false;
+
+    private double lastOperand = 0;
+
     /**
      * @return den aktuellen Bildschirminhalt als String
      */
@@ -45,9 +49,15 @@ public class Calculator {
      * im Ursprungszustand ist.
      */
     public void pressClearKey() {
-        screen = "0";
-        latestOperation = "";
-        latestValue = 0.0;
+        if (!wasClearedOnce) {
+            screen = "0";
+            wasClearedOnce = true;
+        } else {
+            screen = "0";
+            latestOperation = "";
+            latestValue = 0.0;
+            wasClearedOnce = false;
+        }
     }
 
     /**
@@ -118,16 +128,43 @@ public class Calculator {
      * und das Ergebnis direkt angezeigt.
      */
     public void pressEqualsKey() {
-        var result = switch(latestOperation) {
-            case "+" -> latestValue + Double.parseDouble(screen);
-            case "-" -> latestValue - Double.parseDouble(screen);
-            case "x" -> latestValue * Double.parseDouble(screen);
-            case "/" -> latestValue / Double.parseDouble(screen);
-            default -> throw new IllegalArgumentException();
-        };
+        if (latestOperation.equals("")) return;
+
+        double current = Double.parseDouble(screen);
+
+        if (lastOperand == 0) {
+            lastOperand = current;
+        }
+
+        double result = 0;
+
+        if (latestOperation.equals("+")) {
+            result = latestValue + lastOperand;
+        } else if (latestOperation.equals("-")) {
+            result = latestValue - lastOperand;
+        } else if (latestOperation.equals("x")) {
+            result = latestValue * lastOperand;
+        } else if (latestOperation.equals("/")) {
+            if (lastOperand == 0) {
+                screen = "Error";
+                return;
+            } else {
+                result = latestValue / lastOperand;
+            }
+        }
+
         screen = Double.toString(result);
-        if(screen.equals("Infinity")) screen = "Error";
-        if(screen.endsWith(".0")) screen = screen.substring(0,screen.length()-2);
-        if(screen.contains(".") && screen.length() > 11) screen = screen.substring(0, 10);
+
+        if (Double.isInfinite(result) || Double.isNaN(result)) {
+            screen = "Error";
+        } else {
+            screen = Double.toString(result);
+            if (screen.endsWith(".0")) screen = screen.substring(0, screen.length() - 2);
+        }
+
+
+
+        latestValue = result;
     }
 }
+
